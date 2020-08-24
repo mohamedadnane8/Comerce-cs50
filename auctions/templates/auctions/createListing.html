@@ -1,6 +1,28 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Create your listing!</h2>
+    <div class="container">
+      <h2>Create your listing!</h2>
+
+      <form action="{% url 'register' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+              <input class="form-control" autofocus type="text" name="title" placeholder="Title">
+          </div>
+          <select class="form-control">
+            <!-- {%for category in categories%}
+              <option>{{ category }}</option>
+            {%endfor%} -->
+              <option>category</option>
+          </select>
+          <div class="form-group">
+            <textarea class="form-control" name="title" id="exampleFormControlTextarea1" rows="20" placeholder="Description"></textarea>
+          </div>
+
+
+          <input class="btn btn-primary" type="submit" value="Register">
+      </form>
+    </div>
+
 
 {% endblock %}
