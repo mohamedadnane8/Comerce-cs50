@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import *
 
 
 def index(request):
@@ -69,6 +69,28 @@ def register(request):
 
 def create_listing(request):
     if request.method == "POST":
-        pass
+        title = request.POST["title"]
+        description = request.POST.get("description", False)
+        start_bid = request.POST["start_bid"]
+        # here I shoudl get the ipk
+        category = request.POST.get("category", False)
+        print(f"\n\n\n{category}\n\n\n")
+        try:
+            category = Category.objects.get(pk=int(category))
+        except:
+            pass
+        image = request.POST["image_URL"]
+        # initial_bid = Bid.objects.create(start_bid)
+
+        listing = AuctionListing.objects.create(
+            title=title, category=category, image=image, description=description
+        )
+        listing.save()
+        category.add(flight)
+
+        return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/createListing.html")
+        categories = Category.objects.all()
+        return render(
+            request, "auctions/createListing.html", {"categories": categories}
+        )
