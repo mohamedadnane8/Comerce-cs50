@@ -71,8 +71,7 @@ def create_listing(request):
     if request.method == "POST":
         title = request.POST["title"]
         description = request.POST["description"]
-        start_bid = request.POST["start_bid"]
-        print(type(start_bid))
+        start_bid = float(request.POST["start_bid"])
         try:
             category = Category.objects.get(pk=int(request.POST["category"]))
         except:
@@ -81,13 +80,20 @@ def create_listing(request):
                 "auctions/createListing.html",
                 {"categories": categories, "message": "You should precise a category!"},
             )
+
         image = request.POST["image_URL"]
         # initial_bid = Bid.objects.create(start_bid)
+        # print(
+        #     f"\n\n\n\n\n\n\n{title}, {description},{start_bid},{image},{category.name}"
+        # )
 
-        listing = AuctionListing.objects.create(
-            title=title, category=category, image=image, description=description
+        product = AuctionListing.objects.create(
+            title=title,
+            category_id=int(request.POST["category"]),
+            image=image,
+            details=description,
         )
-        category.add(listing)
+        category.add(product)
 
         return HttpResponseRedirect(reverse("index"))
     else:
