@@ -70,23 +70,24 @@ def register(request):
 def create_listing(request):
     if request.method == "POST":
         title = request.POST["title"]
-        description = request.POST.get("description", False)
+        description = request.POST["description"]
         start_bid = request.POST["start_bid"]
-        # here I shoudl get the ipk
-        category = request.POST.get("category", False)
-        print(f"\n\n\n{category}\n\n\n")
+        print(type(start_bid))
         try:
-            category = Category.objects.get(pk=int(category))
+            category = Category.objects.get(pk=int(request.POST["category"]))
         except:
-            pass
+            return render(
+                request,
+                "auctions/createListing.html",
+                {"categories": categories, "message": "You should precise a category!"},
+            )
         image = request.POST["image_URL"]
         # initial_bid = Bid.objects.create(start_bid)
 
         listing = AuctionListing.objects.create(
             title=title, category=category, image=image, description=description
         )
-        listing.save()
-        category.add(flight)
+        category.add(listing)
 
         return HttpResponseRedirect(reverse("index"))
     else:
