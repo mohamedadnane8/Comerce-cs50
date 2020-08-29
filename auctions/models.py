@@ -7,20 +7,25 @@ class User(AbstractUser):
     # watchlist = models.ForeignKey("AuctionListing",on_delete= models.CASCADE)
 
     def __str__(self):
-        return self.username
+        if self.username:
+            return self.username
+        else:
+            return "default"
 
 
 class Bid(models.Model):
-    price = models.FloatField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    bid_value = models.FloatField(default=0)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, related_name="bid_owner"
+    )
     date = models.DateTimeField(auto_now_add=True)
-    auction_listing = models.ForeignKey("AuctionListing", on_delete=models.CASCADE)
+    product = models.ForeignKey("AuctionListing", on_delete=models.CASCADE)
 
     # TO DO: Have to fix the default
     # I have to fix this default
 
     def __str__(self):
-        return self.price
+        return f"{self.bid_value}"
 
 
 class AuctionListing(models.Model):
@@ -29,11 +34,13 @@ class AuctionListing(models.Model):
         "Category",
         on_delete=models.CASCADE,
         default=None,
-        related_name="auctionlisting",
+        related_name="auction_category",
     )
     image = models.URLField()
-    details = models.TextField(max_length=400)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
+    description = models.TextField(max_length=400)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="auction_owner"
+    )
     date = models.DateTimeField(auto_now_add=True)
 
     # TODO: I shoud set this to default
@@ -44,9 +51,14 @@ class AuctionListing(models.Model):
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="comment_owner"
+    )
     auction_listing = models.ForeignKey(
-        "AuctionListing", on_delete=models.CASCADE, default=None
+        "AuctionListing",
+        on_delete=models.CASCADE,
+        default=None,
+        related_name="auction_commented",
     )
     date = models.DateTimeField(auto_now_add=True)
 

@@ -82,18 +82,16 @@ def create_listing(request):
             )
 
         image = request.POST["image_URL"]
-        # initial_bid = Bid.objects.create(start_bid)
-        # print(
-        #     f"\n\n\n\n\n\n\n{title}, {description},{start_bid},{image},{category.name}"
-        # )
 
         product = AuctionListing.objects.create(
             title=title,
             category_id=int(request.POST["category"]),
             image=image,
-            details=description,
+            description=description,
             user=request.user,
         )
+        initial_bid = Bid.objects.create(bid_value=start_bid, product=product)
+
         return HttpResponseRedirect(reverse("index"))
     else:
         categories = Category.objects.all()
