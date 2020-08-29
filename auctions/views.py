@@ -92,9 +92,8 @@ def create_listing(request):
             category_id=int(request.POST["category"]),
             image=image,
             details=description,
+            user=request.user,
         )
-        category.add(product)
-
         return HttpResponseRedirect(reverse("index"))
     else:
         categories = Category.objects.all()
