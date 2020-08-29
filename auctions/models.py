@@ -19,7 +19,9 @@ class Bid(models.Model):
         User, on_delete=models.CASCADE, null=True, related_name="bid_owner"
     )
     date = models.DateTimeField(auto_now_add=True)
-    product = models.ForeignKey("AuctionListing", on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        "AuctionListing", on_delete=models.CASCADE, related_name="bid_product"
+    )
 
     # TO DO: Have to fix the default
     # I have to fix this default
