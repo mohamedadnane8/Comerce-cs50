@@ -1,7 +1,25 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Active Listings:</h2>
+    <br><br>
+      {% for product in products %}
+      <div class="container" style = "min-width: 80%;">
+        <div class="card  mt-3" style= "min-height: 20rem;">
+          <div class="row">
+            <div class ="col-md-4">
+              <img  class="img-fluid" src={{product.image}} alt="Card image cap">
+            </div>
+            <div class="col-md-8">
+              <h2 class="card-title">{{product.title}}</h5>
+              <br>
+              <p class="card-text">{{product.description}}</p>
+              <p class="position-absolute-bottom"><small class="text-muted">Created {{product.date}}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    TODO
+      {% endfor %}
+
 {% endblock %}
