@@ -100,3 +100,7 @@ def create_listing(request):
         return render(
             request, "auctions/createListing.html", {"categories": categories}
         )
+
+
+def listing(request):
+    pass

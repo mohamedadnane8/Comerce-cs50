@@ -7,10 +7,7 @@ class User(AbstractUser):
     # watchlist = models.ForeignKey("AuctionListing",on_delete= models.CASCADE)
 
     def __str__(self):
-        if self.username:
-            return self.username
-        else:
-            return "default"
+        return self.username
 
 
 class Bid(models.Model):
