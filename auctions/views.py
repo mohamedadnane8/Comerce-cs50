@@ -100,3 +100,23 @@ def create_listing(request):
         return render(
             request, "auctions/createListing.html", {"categories": categories}
         )
+
+
+def listing(request, product_id):
+    product = AuctionListing.objects.get(pk=product_id)
+
+    if request.method == "POST":
+        bid_value = float(request.POST.get("bid-value", False))
+        if bid_value > product.bid_product.last().bid_value:
+            Bid.objects.create(bid_value=bid_value, product=product)
+        else:
+            return render(
+                request,
+                "auctions/listing.html",
+                {
+                    "product": product,
+                    "message": "Your bid should be higher than the current bid",
+                },
+            )
+
+    return render(request, "auctions/listing.html", {"product": product},)
