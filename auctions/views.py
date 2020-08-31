@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+import datetime
 
 from .models import *
 
@@ -142,7 +143,7 @@ def bid(request, id):
         if bid_value > product.bid_product.last().bid_value:
             message = "Your bid was accepted"
 
-            Bid.objects.create(bid_value=bid_value, product=product)
+            Bid.objects.create(bid_value=bid_value, product=product, user=request.user)
         else:
             message = "Your bid should be higher than the current bid"
 
@@ -157,6 +158,11 @@ def close(request, id):
     product = AuctionListing.objects.get(pk=id)
     # these extra conditions can be deleted but just to make sure this is secure I added it
     if request.method == "POST" and product and request.user.id == product.user.id:
-        winner_bid = product.bid_product.last()
-        winner_user = winner_bid.bid_owner
-        print(f"{winner_user.name}\n\n\n")
+        winner_user = product.bid_product.last().user
+        product.date_sold = datetime.datetime.now()
+
+        product.winner = winner_user
+        product.save()
+
+        return redirect("index")
+    return redirect("listing", product_id=id)

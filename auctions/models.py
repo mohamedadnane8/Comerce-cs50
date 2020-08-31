@@ -41,9 +41,12 @@ class AuctionListing(models.Model):
     winner = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name="auction_winner"
     )
-    date = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_sold = models.DateTimeField(auto_now=False, blank=True, null=True)
 
     # TODO: I shoud set this to default
+    def is_active(self):
+        return self.winner == None
 
     def __str__(self):
         return self.title
