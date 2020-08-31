@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+      <div class="container" style = "min-width: 80%;" style = "background-color: blue;">
+        <div class="text-center">
+          <h2>Listing:{{product.title}}</h2>
+          <img  class="img-fluid text-center" src={{product.image}} alt="Missing Image" style="margin: 3rem;">
+        </div>
+        <p class="lead">{{product.description}}</p>
+        {% if product.is_active%}
+
+          <form action="{% url 'bid' id=product.id%}" method="post" class="container">
+              {% csrf_token %}
+              <h3><b>Price:</b> {{product.bid_product.last}} Dhs</h3>
+
+              <div class="form-group">
+                {% if message %}
+                    <div>{{ message }}</div>
+                {% endif %}
+                  <input class="form-control" autofocus type="number" name="bid-value" placeholder="Bid">
+              </div>
+              <input class="btn btn-primary" type="submit" value="Place bid">
+          </form>
+          {% if ïs_owner == True %}
+              <form action="{% url 'close' id=product.id%}" method="post" class="container">
+                  {% csrf_token %}
+                  <input class="btn btn-primary" type="submit" value="Close">
+              </form>
+          {% endif %}
+        {% elif product.winner == user %}
+          <h2>Congrats, you have won the auction!</h2>
+          <p>You bought it for <b>{{ product.bid_product.last }}</b>  dhs</p>
+
+        {% else %}
+
+          <p>Item sold for <b>{{ product.bid_product.last }}</b> dhs</p>
+          <p class="position-absolute-bottom"><small class="text-muted">Sold {{product.date_sold}}</small></p>
+
+      {% endif %}
+        <p class="position-absolute-bottom"><small class="text-muted">Created {{product.date_created}}</small></p>
+      </div>
+
+
+{% endblock %}
