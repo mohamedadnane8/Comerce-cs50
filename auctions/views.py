@@ -3,6 +3,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 from .models import *
 
@@ -74,6 +76,15 @@ def create_listing(request):
         title = request.POST["title"]
         description = request.POST["description"]
         start_bid = float(request.POST["start_bid"])
+        if start_bid < 0:
+            return render(
+                request,
+                "auctions/createListing.html",
+                {
+                    "categories": categories,
+                    "message": "Starting Bid Should be positive!",
+                },
+            )
         try:
             category = Category.objects.get(pk=int(request.POST["category"]))
         except:
@@ -104,19 +115,33 @@ def create_listing(request):
 
 def listing(request, product_id):
     product = AuctionListing.objects.get(pk=product_id)
+    if product:
+        return render(request, "auctions/listing.html", {"product": product})
+    else:
+        # return error
+        pass
+
+
+@login_required
+def bid(request, id):
+    print("Hello world /n\n\n\n\n")
 
     if request.method == "POST":
-        bid_value = float(request.POST.get("bid-value", False))
+        product = AuctionListing.objects.get(pk=id)
+
+        try:
+            bid_value = float(request.POST["bid-value"])
+        except ValueError:
+            message = "Please imput something before submiting the bid"
+
         if bid_value > product.bid_product.last().bid_value:
+            message = "Your bid was accepted"
+
             Bid.objects.create(bid_value=bid_value, product=product)
         else:
-            return render(
-                request,
-                "auctions/listing.html",
-                {
-                    "product": product,
-                    "message": "Your bid should be higher than the current bid",
-                },
-            )
+            message = "Your bid should be higher than the current bid"
 
-    return render(request, "auctions/listing.html", {"product": product},)
+        return redirect("listing", product_id=id)
+
+    else:
+        return redirect("index")

@@ -4,13 +4,8 @@ from django.db import models
 
 class User(AbstractUser):
     # it inherits from the the AbstractUser (so it already have the username password and email!)
-    # watchlist = models.ForeignKey("AuctionListing",on_delete= models.CASCADE)
-
     def __str__(self):
-        if self.username:
-            return self.username
-        else:
-            return "default"
+        return self.username
 
 
 class Bid(models.Model):
@@ -51,10 +46,22 @@ class AuctionListing(models.Model):
         return self.title
 
 
+class Watchlist(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="user_watching"
+    )
+    products = models.ForeignKey(
+        AuctionListing,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="watched_item",
+    )
+
+
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="comment_owner"
+        User, on_delete=models.SET_NULL, related_name="comment_owner", null=True
     )
     auction_listing = models.ForeignKey(
         "AuctionListing",
