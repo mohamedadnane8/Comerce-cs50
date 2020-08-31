@@ -4,8 +4,6 @@ from django.db import models
 
 class User(AbstractUser):
     # it inherits from the the AbstractUser (so it already have the username password and email!)
-    # watchlist = models.ForeignKey("AuctionListing",on_delete= models.CASCADE)
-
     def __str__(self):
         return self.username
 
@@ -40,18 +38,36 @@ class AuctionListing(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="auction_owner"
     )
-    date = models.DateTimeField(auto_now_add=True)
+    winner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="auction_winner"
+    )
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_sold = models.DateTimeField(auto_now=False, blank=True, null=True)
 
     # TODO: I shoud set this to default
+    def is_active(self):
+        return self.winner == None
 
     def __str__(self):
         return self.title
 
 
+class Watchlist(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="user_watching"
+    )
+    products = models.ForeignKey(
+        AuctionListing,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="watched_item",
+    )
+
+
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="comment_owner"
+        User, on_delete=models.SET_NULL, related_name="comment_owner", null=True
     )
     auction_listing = models.ForeignKey(
         "AuctionListing",

@@ -3,6 +3,9 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+import datetime
 
 from .models import *
 
@@ -74,6 +77,15 @@ def create_listing(request):
         title = request.POST["title"]
         description = request.POST["description"]
         start_bid = float(request.POST["start_bid"])
+        if start_bid < 0:
+            return render(
+                request,
+                "auctions/createListing.html",
+                {
+                    "categories": categories,
+                    "message": "Starting Bid Should be positive!",
+                },
+            )
         try:
             category = Category.objects.get(pk=int(request.POST["category"]))
         except:
@@ -102,5 +114,55 @@ def create_listing(request):
         )
 
 
-def listing(request):
-    pass
+def listing(request, product_id):
+    product = AuctionListing.objects.get(pk=product_id)
+    if product:
+        if request.user.id == product.user.id:
+            return render(
+                request, "auctions/listing.html", {"product": product, "ïs_owner": True}
+            )
+
+        return render(request, "auctions/listing.html", {"product": product})
+    else:
+        # return error
+        pass
+
+
+# TODO: If the bid doesn’t meet those criteria, the user should be presented with an error.
+@login_required(login_url="/login/")
+def bid(request, id):
+
+    if request.method == "POST":
+        product = AuctionListing.objects.get(pk=id)
+
+        try:
+            bid_value = float(request.POST["bid-value"])
+        except ValueError:
+            message = "Please imput something before submiting the bid"
+
+        if bid_value > product.bid_product.last().bid_value:
+            message = "Your bid was accepted"
+
+            Bid.objects.create(bid_value=bid_value, product=product, user=request.user)
+        else:
+            message = "Your bid should be higher than the current bid"
+
+        return redirect("listing", product_id=id)
+
+    else:
+        return redirect("index")
+
+
+@login_required
+def close(request, id):
+    product = AuctionListing.objects.get(pk=id)
+    # these extra conditions can be deleted but just to make sure this is secure I added it
+    if request.method == "POST" and product and request.user.id == product.user.id:
+        winner_user = product.bid_product.last().user
+        product.date_sold = datetime.datetime.now()
+
+        product.winner = winner_user
+        product.save()
+
+        return redirect("index")
+    return redirect("listing", product_id=id)
