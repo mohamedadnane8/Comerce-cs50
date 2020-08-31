@@ -116,15 +116,20 @@ def create_listing(request):
 def listing(request, product_id):
     product = AuctionListing.objects.get(pk=product_id)
     if product:
+        if request.user.id == product.user.id:
+            return render(
+                request, "auctions/listing.html", {"product": product, "ïs_owner": True}
+            )
+
         return render(request, "auctions/listing.html", {"product": product})
     else:
         # return error
         pass
 
 
-@login_required
+# TODO: If the bid doesn’t meet those criteria, the user should be presented with an error.
+@login_required(login_url="/login/")
 def bid(request, id):
-    print("Hello world /n\n\n\n\n")
 
     if request.method == "POST":
         product = AuctionListing.objects.get(pk=id)
@@ -145,3 +150,13 @@ def bid(request, id):
 
     else:
         return redirect("index")
+
+
+@login_required
+def close(request, id):
+    product = AuctionListing.objects.get(pk=id)
+    # these extra conditions can be deleted but just to make sure this is secure I added it
+    if request.method == "POST" and product and request.user.id == product.user.id:
+        winner_bid = product.bid_product.last()
+        winner_user = winner_bid.bid_owner
+        print(f"{winner_user.name}\n\n\n")

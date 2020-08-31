@@ -38,6 +38,9 @@ class AuctionListing(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="auction_owner"
     )
+    winner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="auction_winner"
+    )
     date = models.DateTimeField(auto_now_add=True)
 
     # TODO: I shoud set this to default
