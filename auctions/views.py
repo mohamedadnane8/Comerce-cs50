@@ -174,13 +174,8 @@ def close(request, id):
 
 @login_required(login_url="/login/")
 def watchlist(request):
-    print(f"{request.user.user_watching.last().products}\n\n\n\n\n")
-
-    return render(
-        request,
-        "auctions/watchlist.html",
-        {"products": request.user.user_watching.last().products},
-    )
+    list_product = [p.products for p in request.user.user_watching.all()]
+    return render(request, "auctions/watchlist.html", {"products": list_product},)
 
 
 @login_required
