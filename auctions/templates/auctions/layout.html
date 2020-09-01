@@ -25,6 +25,10 @@
                     <a class="nav-link" href="{% url 'createListing' %}">Create listing</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
             {% else %}
@@ -34,6 +38,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'register' %}">Register</a>
                 </li>
+
 
             {% endif %}
         </ul>

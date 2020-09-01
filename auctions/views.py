@@ -133,6 +133,7 @@ def listing(request, product_id):
 def bid(request, id):
 
     if request.method == "POST":
+
         product = AuctionListing.objects.get(pk=id)
 
         try:
@@ -140,7 +141,7 @@ def bid(request, id):
         except ValueError:
             message = "Please imput something before submiting the bid"
 
-        if bid_value > product.bid_product.last().bid_value:
+        if bid_value > product.current_price():
             message = "Your bid was accepted"
 
             Bid.objects.create(bid_value=bid_value, product=product, user=request.user)
@@ -159,10 +160,38 @@ def close(request, id):
     # these extra conditions can be deleted but just to make sure this is secure I added it
     if request.method == "POST" and product and request.user.id == product.user.id:
         winner_user = product.bid_product.last().user
+        if winner_user == None:
+            # TODO: I have to display an error (There is no bid)
+            pass
         product.date_sold = datetime.datetime.now()
-
         product.winner = winner_user
+
         product.save()
 
         return redirect("index")
     return redirect("listing", product_id=id)
+
+
+@login_required(login_url="/login/")
+def watchlist(request):
+    print(f"{request.user.user_watching.last().products}\n\n\n\n\n")
+
+    return render(
+        request,
+        "auctions/watchlist.html",
+        {"products": request.user.user_watching.last().products},
+    )
+
+
+@login_required
+def add_watchlist(request, product_id):
+    if request.method == "POST":
+        product = AuctionListing.objects.get(pk=product_id)
+        Watchlist.objects.create(user=request.user, products=product)
+        return redirect("listing", product_id=product_id)
+    return redirect("index")
+
+
+@login_required
+def delete_watchlist(request, product_id):
+    pass

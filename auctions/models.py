@@ -29,8 +29,8 @@ class AuctionListing(models.Model):
     title = models.CharField(max_length=60)
     category = models.ForeignKey(
         "Category",
-        on_delete=models.CASCADE,
-        default=None,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="auction_category",
     )
     image = models.URLField()
@@ -48,12 +48,15 @@ class AuctionListing(models.Model):
     def is_active(self):
         return self.winner == None
 
+    def current_price(self):
+        return self.bid_product.last().bid_value
+
     def __str__(self):
         return self.title
 
 
 class Watchlist(models.Model):
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_watching"
     )
     products = models.ForeignKey(
@@ -62,6 +65,9 @@ class Watchlist(models.Model):
         null=True,
         related_name="watched_item",
     )
+
+    def __str__(self):
+        return f"{self.products.id}: {self.user.username}"
 
 
 class Comment(models.Model):
