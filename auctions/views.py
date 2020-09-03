@@ -116,15 +116,23 @@ def create_listing(request):
 
 def listing(request, product_id):
     product = AuctionListing.objects.get(pk=product_id)
+    is_watchlist = bool(
+        product.watched_item and product.watched_item.all().filter(user=request.user)
+    )
     if product:
         if request.user.id == product.user.id:
             return render(
-                request, "auctions/listing.html", {"product": product, "ïs_owner": True}
+                request,
+                "auctions/listings.html",
+                {"product": product, "ïs_owner": True},
             )
 
-        return render(request, "auctions/listing.html", {"product": product})
+        return render(
+            request,
+            "auctions/listings.html",
+            {"product": product, "is_watchlist": is_watchlist},
+        )
     else:
-        # return error
         pass
 
 
@@ -189,4 +197,31 @@ def add_watchlist(request, product_id):
 
 @login_required
 def delete_watchlist(request, product_id):
-    pass
+    if request.method == "POST":
+        product = AuctionListing.objects.get(pk=product_id)
+        item_to_delete = Watchlist.objects.get(products=product, user=request.user)
+        item_to_delete.delete()
+        return redirect("watchlist")
+
+
+def category_list(request):
+    return render(
+        request, "auctions/category.html", {"categories": Category.objects.all()}
+    )
+
+
+def search_category(request, category_id):
+    category = Category.objects.get(pk=category_id)
+    products = category.auction_category.all()
+    return render(request, "auctions/index.html", {"products": products})
+
+
+def comment(request, product_id):
+    if request.method == "POST":
+        product = AuctionListing.objects.get(pk=product_id)
+        comment_content = request.POST["comment"]
+        owner = request.user
+        Comment.objects.create(
+            user=owner, auction_listing=product, comment=comment_content
+        )
+        return redirect("listing", product_id=product_id)

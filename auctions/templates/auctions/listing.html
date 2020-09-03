@@ -12,7 +12,7 @@
         <p class="lead" style="margin: 3rem;">{{product.description}}</p>
         {% if product.is_active%}
 
-        {% if product.user != user %}
+          {% if product.user != user %}
           <form action="{% url 'bid' id=product.id%}" method="post" class="container">
               {% csrf_token %}
 
@@ -31,20 +31,30 @@
                   {% csrf_token %}
                   <input class="btn btn-primary" type="submit" value="Close">
               </form>
-          {% else %}
-              <form action="{% url 'addWatchlist' product_id=product.id%}" method="post" class="container text-center">
-                  {% csrf_token %}
-                  <input class="btn btn-primary" type="submit" value="add watchlist">
-              </form>
-          {% endif %}
 
+          {% endif %}
         {% elif product.winner == user %}
+
           <h2>Congrats, you have won the auction!</h2>
           <p>You bought it for <b>{{ product.current_price }}</b>  dhs</p>
         {% else %}
-
           <p>Item sold for <b>{{ product.current_price }}</b> dhs</p>
+      {% endif %}
 
+      {% if user.is_authenticated and user != product.user %}
+        {% if is_watchlist == True %}
+          <form action="{% url 'deleteWatchlist' product_id=product.id%}" method="post" class="container text-center">
+              {% csrf_token %}
+              <input class="btn btn-primary" type="submit" value="delete from watchlist">
+          </form>
+
+        {% else %}
+
+          <form action="{% url 'addWatchlist' product_id=product.id%}" method="post" class="container text-center">
+              {% csrf_token %}
+              <input class="btn btn-primary" type="submit" value="add watchlist">
+          </form>
+          {% endif %}
       {% endif %}
       <div>
         {% if not product.is_active %}

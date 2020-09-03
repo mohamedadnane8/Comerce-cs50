@@ -48,6 +48,9 @@ class AuctionListing(models.Model):
     def is_active(self):
         return self.winner == None
 
+    def is_watchlist(self, user):
+        return bool(self.watched_item and self.watched_item.all().filter(pk=user.id))
+
     def current_price(self):
         return self.bid_product.last().bid_value
 
@@ -65,6 +68,9 @@ class Watchlist(models.Model):
         null=True,
         related_name="watched_item",
     )
+
+    class Meta:
+        unique_together = ["user", "products"]
 
     def __str__(self):
         return f"{self.products.id}: {self.user.username}"

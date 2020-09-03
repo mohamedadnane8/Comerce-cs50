@@ -18,4 +18,7 @@ urlpatterns = [
         views.delete_watchlist,
         name="deleteWatchlist",
     ),
+    path("categories/", views.category_list, name="categorylist"),
+    path("category=<int:category_id>/", views.search_category, name="searchCategory"),
+    path("comment/<int:product_id>", views.comment, name="comment"),
 ]
