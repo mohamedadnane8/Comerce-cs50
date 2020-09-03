@@ -123,13 +123,13 @@ def listing(request, product_id):
         if request.user.id == product.user.id:
             return render(
                 request,
-                "auctions/listings.html",
+                "auctions/listing.html",
                 {"product": product, "ïs_owner": True},
             )
 
         return render(
             request,
-            "auctions/listings.html",
+            "auctions/listing.html",
             {"product": product, "is_watchlist": is_watchlist},
         )
     else:
