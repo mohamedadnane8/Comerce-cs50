@@ -3,21 +3,21 @@
 {% block body %}
     <h2>Active Listings:</h2>
     <br><br>
-      {% for product in products %}
+      {% for listing in listings %}
       <div class="container" style = "min-width: 80%;">
         <div class="card  mt-5" style= "min-height: 20rem;">
           <div class="row">
             <div class ="col-md-4 text-center">
-              <a href="{% url 'listing' product_id=product.id  %}">
-                <img  class="img-fluid" src={{product.image}} alt="Card image cap">
+              <a href="{% url 'listing' listing_id=listing.id  %}">
+                <img  class="img-fluid" src={{listing.image}} alt="Card image cap">
               </a>
             </div>
             <div class="col-md-8" style= "padding: 1rem;">
-              <h2 class="card-title">{{product.title}}</h5>
-              <p class="card-text"><b>Price:</b> {{product.bid_product.last}} Dhs</p>
+              <h2 class="card-title">{{listing.title}}</h5>
+              <p class="card-text"><b>Price:</b> {{listing.bid_listing.last}} Dhs</p>
               <br>
-              <p class="card-text">{{product.description|truncatewords:50}}</p>
-              <p class="position-absolute-bottom"><small class="text-muted">Created {{product.date}}</small></p>
+              <p class="card-text">{{listing.description|truncatewords:50}}</p>
+              <p class="position-absolute-bottom"><small class="text-muted">Created {{listing.date}}</small></p>
             </div>
           </div>
         </div>

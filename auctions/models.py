@@ -4,6 +4,8 @@ from django.db import models
 
 class User(AbstractUser):
     # it inherits from the the AbstractUser (so it already have the username password and email!)
+    image = models.URLField(default="https://image.ibb.co/jw55Ex/def_face.jpg")
+
     def __str__(self):
         return self.username
 
@@ -14,8 +16,8 @@ class Bid(models.Model):
         User, on_delete=models.CASCADE, null=True, related_name="bid_owner"
     )
     date = models.DateTimeField(auto_now_add=True)
-    product = models.ForeignKey(
-        "AuctionListing", on_delete=models.CASCADE, related_name="bid_product"
+    listing = models.ForeignKey(
+        "AuctionListing", on_delete=models.CASCADE, related_name="bid_listing"
     )
 
     # TO DO: Have to fix the default
@@ -52,7 +54,7 @@ class AuctionListing(models.Model):
         return bool(self.watched_item and self.watched_item.all().filter(pk=user.id))
 
     def current_price(self):
-        return self.bid_product.last().bid_value
+        return self.bid_listing.last().bid_value
 
     def __str__(self):
         return self.title
@@ -62,7 +64,7 @@ class Watchlist(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_watching"
     )
-    products = models.ForeignKey(
+    listings = models.ForeignKey(
         AuctionListing,
         on_delete=models.SET_NULL,
         null=True,
@@ -70,15 +72,15 @@ class Watchlist(models.Model):
     )
 
     class Meta:
-        unique_together = ["user", "products"]
+        unique_together = ["user", "listings"]
 
     def __str__(self):
-        return f"{self.products.id}: {self.user.username}"
+        return f"{self.listings.id}: {self.user.username}"
 
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name="comment_owner", null=True
     )
     auction_listing = models.ForeignKey(
