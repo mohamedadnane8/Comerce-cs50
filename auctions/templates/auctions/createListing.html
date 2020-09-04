@@ -4,8 +4,11 @@
   <div class="container">
     <h2>Create your listing!</h2>
     {% if message %}
-        <div>{{ message }}</div>
+    <div class="alert alert-warning" role="alert">
+          <div>{{ message }}</div>
+    </div>
     {% endif %}
+
     <form action="{% url 'createListing' %}" method="post">
         {% csrf_token %}
         <div class="form-group">

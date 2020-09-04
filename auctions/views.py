@@ -55,17 +55,18 @@ def register(request):
             return render(
                 request, "auctions/register.html", {"message": "Passwords must match."}
             )
-
+        image = request.POST["image_URL"]
         # Attempt to create new user
         try:
-            try:
-                image = request.POST["image_URL"]
-                user = User.objects.create_user(username, email, password, image)
+            if image:
+                print(f"\m\m\m\m\n\n\n\n\n{image}")
+                user = User.objects.create_user(
+                    username=username, email=email, password=password, image=image
+                )
                 user.save()
-            except:
+            else:
                 user = User.objects.create_user(username, email, password)
                 user.save()
-
         except IntegrityError:
             return render(
                 request,
@@ -79,10 +80,26 @@ def register(request):
 
 
 def create_listing(request):
+    categories = Category.objects.all()
+
     if request.method == "POST":
+
         title = request.POST["title"]
+        if title == "":
+            return render(
+                request,
+                "auctions/createListing.html",
+                {"categories": categories, "message": "Please input a title."},
+            )
         description = request.POST["description"]
-        start_bid = float(request.POST["start_bid"])
+        try:
+            start_bid = float(request.POST["start_bid"])
+        except ValueError:
+            return render(
+                request,
+                "auctions/createListing.html",
+                {"categories": categories, "message": "Please input a starting bid."},
+            )
         if start_bid < 0:
             return render(
                 request,
@@ -114,7 +131,6 @@ def create_listing(request):
 
         return HttpResponseRedirect(reverse("index"))
     else:
-        categories = Category.objects.all()
         return render(
             request, "auctions/createListing.html", {"categories": categories}
         )
@@ -140,7 +156,11 @@ def listing(request, listing_id):
         return render(
             request,
             "auctions/listing.html",
-            {"listing": listing, "is_watchlist": is_watchlist},
+            {
+                "listing": listing,
+                "is_watchlist": is_watchlist,
+                "message": request.COOKIES.get("message"),
+            },
         )
     else:
         pass
@@ -153,20 +173,23 @@ def bid(request, id):
     if request.method == "POST":
 
         listing = AuctionListing.objects.get(pk=id)
-
+        response = redirect("listing", listing_id=id)
         try:
             bid_value = float(request.POST["bid-value"])
         except ValueError:
-            message = "Please imput something before submiting the bid"
-
+            response.set_cookie(
+                "message", "Please imput something before submiting the bid", max_age=3
+            )
+            return response
         if bid_value > listing.current_price():
-            message = "Your bid was accepted"
-
+            response.set_cookie("message", "Your bid was accepted", max_age=3)
             Bid.objects.create(bid_value=bid_value, listing=listing, user=request.user)
         else:
-            message = "Your bid should be higher than the current bid"
+            response.set_cookie(
+                "message", "Your bid should be higher than the current bid", max_age=3
+            )
 
-        return redirect("listing", listing_id=id)
+        return response
 
     else:
         return redirect("index")
@@ -196,7 +219,7 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", {"listings": list_listing},)
 
 
-@login_required
+@login_required(login_url="/login/")
 def add_watchlist(request, listing_id):
     if request.method == "POST":
         listing = AuctionListing.objects.get(pk=listing_id)
@@ -205,7 +228,7 @@ def add_watchlist(request, listing_id):
     return redirect("index")
 
 
-@login_required
+@login_required(login_url="/login/")
 def delete_watchlist(request, listing_id):
     if request.method == "POST":
         listing = AuctionListing.objects.get(pk=listing_id)

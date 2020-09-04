@@ -23,9 +23,11 @@
                 {% csrf_token %}
                 <div class="form-group">
                   {% if message %}
-                      <div>{{ message }}</div>
+                  <div class="alert alert-warning" role="alert">
+                        <div>{{ message }}</div>
+                  </div>
                   {% endif %}
-                    <input class="form-control" autofocus type="number" name="bid-value" placeholder="Bid">
+                  <input class="form-control" autofocus type="number" name="bid-value" placeholder="Bid">
                 </div>
                 <input class="btn btn-primary" type="submit" value="Place bid">
             </form>
